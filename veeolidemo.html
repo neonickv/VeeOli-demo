@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeeOli Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+        }
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: #6b7556;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+        .input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 10px 0;
+        }
+        .category {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 8px 0;
+            text-align: left;
+        }
+        .category.selected {
+            border-color: #6b7556;
+            background: #f8faf5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="screen active" id="welcome">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; max-width: 500px; margin: 0 auto;">
+        <div style="font-size: 80px; margin-bottom: 20px;">🫒</div>
+        <h1 style="font-size: 48px; color: #334155; margin-bottom: 10px;">VeeOli</h1>
+        <p style="color: #64748b; font-size: 18px; margin-bottom: 40px;">Shared experiences for shared support</p>
+        
+        <div style="width: 100%;">
+            <div class="card">
+                <div style="font-size: 24px; margin-bottom: 10px;">🛡️</div>
+                <h3 style="color: #334155; margin-bottom: 5px;">Before crisis</h3>
+                <p style="color: #64748b; font-size: 14px;">You don't need to be in crisis to talk</p>
+            </div>
+            
+            <div class="card">
+                <div style="font-size: 24px; margin-bottom: 10px;">👥</div>
+                <h3 style="color: #334155; margin-bottom: 5px;">Peer-based support</h3>
+                <p style="color: #64748b; font-size: 14px;">Someone who's been there listens differently</p>
+            </div>
+            
+            <div class="card">
+                <div style="font-size: 24px; margin-bottom: 10px;">💬</div>
+                <h3 style="color: #334155; margin-bottom: 5px;">When you're ready</h3>
+                <p style="color: #64748b; font-size: 14px;">Talk or text — without pressure</p>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="showScreen('name')">Get Started</button>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 15px;">Not therapy. Peer-based support.</p>
+    </div>
+</div>
+
+<div class="screen" id="name">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 10px;">Choose your name</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">This is how others will know you. It can be anything you'd like.</p>
+        
+        <input type="text" id="nameInput" class="input" placeholder="Your name or nickname">
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 10px;">Your identity stays private. Only this name is shared.</p>
+        
+        <button class="btn" id="nameBtn" disabled onclick="saveName()">Continue</button>
+    </div>
+</div>
+
+<div class="screen" id="categories">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 10px;">Select your topics</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">Choose up to 5 areas you understand</p>
+        
+        <div id="selectedList"></div>
+        
+        <button class="category" onclick="toggleCat(1)">
+            <div style="font-size: 24px; margin-bottom: 5px;">🎖️</div>
+            <div style="font-weight: 600; color: #334155;">Veterans</div>
+        </button>
+        
+        <button class="category" onclick="toggleCat(2)">
+            <div style="font-size: 24px; margin-bottom: 5px;">🛡️</div>
+            <div style="font-weight: 600; color: #334155;">PTSD</div>
+        </button>
+        
+        <button class="category" onclick="toggleCat(3)">
+            <div style="font-size: 24px; margin-bottom: 5px;">🌧️</div>
+            <div style="font-weight: 600; color: #334155;">Depression</div>
+        </button>
+        
+        <button class="category" onclick="toggleCat(4)">
+            <div style="font-size: 24px; margin-bottom: 5px;">💭</div>
+            <div style="font-weight: 600; color: #334155;">Anxiety</div>
+        </button>
+        
+        <button class="btn" id="catBtn" disabled onclick="showScreen('availability')">Continue</button>
+    </div>
+</div>
+
+<div class="screen" id="availability">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 10px;">When can you listen?</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">Select times you're typically available</p>
+        
+        <button class="category" onclick="toggleTime(1)">
+            <div style="font-size: 20px; margin-bottom: 5px;">📅</div>
+            <div style="font-weight: 600; color: #334155;">Weekday Mornings</div>
+            <div style="color: #94a3b8; font-size: 14px;">8am - 12pm</div>
+        </button>
+        
+        <button class="category" onclick="toggleTime(2)">
+            <div style="font-size: 20px; margin-bottom: 5px;">📅</div>
+            <div style="font-weight: 600; color: #334155;">Weekday Afternoons</div>
+            <div style="color: #94a3b8; font-size: 14px;">12pm - 5pm</div>
+        </button>
+        
+        <button class="category" onclick="toggleTime(3)">
+            <div style="font-size: 20px; margin-bottom: 5px;">📅</div>
+            <div style="font-weight: 600; color: #334155;">Weekday Evenings</div>
+            <div style="color: #94a3b8; font-size: 14px;">5pm - 10pm</div>
+        </button>
+        
+        <button class="btn" id="timeBtn" disabled onclick="showScreen('dashboard')">Continue</button>
+    </div>
+</div>
+
+<div class="screen" id="dashboard">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div>
+                <h2 style="font-size: 28px; color: #334155;">Welcome, <span id="dashName">User</span></h2>
+                <p style="color: #94a3b8; font-size: 14px;">Peer support platform</p>
+            </div>
+            <div style="width: 50px; height: 50px; background: #6b7556; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: 600;">
+                <span id="dashInitial">U</span>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px;">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 20px; margin-bottom: 5px;">⭐ 4.7</div>
+                <p style="color: #94a3b8; font-size: 12px;">Rating</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 20px; margin-bottom: 5px;">23</div>
+                <p style="color: #94a3b8; font-size: 12px;">Sessions</p>
+            </div>
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 20px; margin-bottom: 5px;">18h</div>
+                <p style="color: #94a3b8; font-size: 12px;">Listened</p>
+            </div>
+        </div>
+        
+        <h3 style="color: #475569; margin-bottom: 15px; font-size: 16px;">Your topics</h3>
+        <div id="dashCategories"></div>
+        
+        <button class="btn" onclick="showScreen('ready')">I'm Ready to Talk</button>
+        <p style="color: #94a3b8; font-size: 13px; text-align: center; margin-top: 15px;">When you need to talk, someone's here</p>
+    </div>
+</div>
+
+<div class="screen" id="ready">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 10px;">How would you like to connect?</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">We'll match you with someone who understands</p>
+        
+        <button class="card" onclick="showScreen('matching')" style="cursor: pointer; border: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 20px;">
+            <div style="font-size: 40px;">📞</div>
+            <div>
+                <h4 style="font-weight: 600; color: #334155; margin-bottom: 5px;">Voice call</h4>
+                <p style="color: #94a3b8; font-size: 14px;">Talk in real-time</p>
+            </div>
+        </button>
+        
+        <button class="card" onclick="showScreen('chat')" style="cursor: pointer; border: none; width: 100%; text-align: left; display: flex; align-items: center; gap: 20px;">
+            <div style="font-size: 40px;">💬</div>
+            <div>
+                <h4 style="font-weight: 600; color: #334155; margin-bottom: 5px;">Text chat</h4>
+                <p style="color: #94a3b8; font-size: 14px;">Message at your pace</p>
+            </div>
+        </button>
+    </div>
+</div>
+
+<div class="screen" id="matching">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; max-width: 500px; margin: 0 auto;">
+        <div style="font-size: 80px; margin-bottom: 20px;">👤</div>
+        <h2 style="font-size: 28px; color: #334155; margin-bottom: 10px;">Finding a listener</h2>
+        <p style="color: #64748b; margin-bottom: 40px;">Matching thoughtfully...</p>
+        
+        <div class="card" style="width: 100%; text-align: center;">
+            <p style="color: #64748b; margin-bottom: 10px;">This will take just a moment</p>
+        </div>
+        
+        <button class="btn" onclick="showScreen('call')" style="margin-top: 40px;">Continue to Call</button>
+    </div>
+</div>
+
+<div class="screen" id="call">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; max-width: 500px; margin: 0 auto;">
+        <div style="width: 120px; height: 120px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <span style="font-size: 60px;">👤</span>
+        </div>
+        
+        <h2 style="font-size: 24px; color: #334155; margin-bottom: 10px;">Jordan K.</h2>
+        <p style="color: #64748b; margin-bottom: 5px;">⭐ 4.8 • 127 sessions</p>
+        
+        <div class="card" style="width: 100%; margin-top: 30px; margin-bottom: 30px;">
+            <p style="color: #64748b; font-size: 13px; margin-bottom: 10px;">Shared topics:</p>
+            <p style="color: #334155; font-weight: 600;">🎖️ Veterans • 🛡️ PTSD</p>
+        </div>
+        
+        <div style="font-size: 48px; color: #334155; margin-bottom: 40px;">15:23</div>
+        
+        <button class="btn" style="background: #ef4444; width: 200px;" onclick="showScreen('feedback')">End Call</button>
+        <p style="color: #94a3b8; font-size: 13px; margin-top: 15px;">You can end this call anytime</p>
+    </div>
+</div>
+
+<div class="screen" id="chat">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+            <div style="width: 50px; height: 50px; background: #6b7556; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">JK</div>
+            <div>
+                <h3 style="color: #334155; font-weight: 600;">Jordan K.</h3>
+                <p style="color: #94a3b8; font-size: 13px;">⭐ 4.8</p>
+            </div>
+        </div>
+        
+        <div class="card" style="background: #f8fafc; margin-bottom: 15px;">
+            <p style="color: #334155; font-size: 14px; margin-bottom: 5px;">Hi. I'm here to listen.</p>
+            <p style="color: #94a3b8; font-size: 12px;">Just now</p>
+        </div>
+        
+        <div class="card" style="background: #6b7556; color: white; margin-left: auto; max-width: 80%; margin-bottom: 15px;">
+            <p style="font-size: 14px; margin-bottom: 5px;">Thank you for being here.</p>
+            <p style="opacity: 0.7; font-size: 12px;">Just now</p>
+        </div>
+        
+        <div style="margin-top: 40px;">
+            <input type="text" class="input" placeholder="Type a message..." style="margin-bottom: 10px;">
+        </div>
+        
+        <button class="btn" onclick="showScreen('feedback')">End Conversation</button>
+    </div>
+</div>
+
+<div class="screen" id="feedback">
+    <div style="flex: 1; max-width: 500px; margin: 0 auto; width: 100%;">
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 10px;">How did it go?</h2>
+        <p style="color: #64748b; margin-bottom: 30px;">Your feedback helps us improve</p>
+        
+        <p style="font-weight: 600; color: #475569; margin-bottom: 20px;">Rate Jordan K. as a listener</p>
+        
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
+            <button onclick="setRating(1)" style="border: none; background: none; font-size: 40px; cursor: pointer; color: #e2e8f0;" id="star1">★</button>
+            <button onclick="setRating(2)" style="border: none; background: none; font-size: 40px; cursor: pointer; color: #e2e8f0;" id="star2">★</button>
+            <button onclick="setRating(3)" style="border: none; background: none; font-size: 40px; cursor: pointer; color: #e2e8f0;" id="star3">★</button>
+            <button onclick="setRating(4)" style="border: none; background: none; font-size: 40px; cursor: pointer; color: #e2e8f0;" id="star4">★</button>
+            <button onclick="setRating(5)" style="border: none; background: none; font-size: 40px; cursor: pointer; color: #e2e8f0;" id="star5">★</button>
+        </div>
+        
+        <textarea placeholder="What went well? What could be better?" rows="4" style="width: 100%; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; resize: none; font-family: inherit;"></textarea>
+        
+        <button class="btn" id="feedbackBtn" disabled onclick="showScreen('complete')">Submit Feedback</button>
+    </div>
+</div>
+
+<div class="screen" id="complete">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; max-width: 500px; margin: 0 auto;">
+        <div style="font-size: 80px; margin-bottom: 20px;">✓</div>
+        <h2 style="font-size: 32px; color: #334155; margin-bottom: 15px;">Thank you, <span id="completeName">User</span></h2>
+        <p style="color: #64748b; font-size: 16px; margin-bottom: 40px; max-width: 350px;">
+            You were there when someone needed to be heard. That matters.
+        </p>
+        
+        <div class="card" style="width: 100%; margin-bottom: 30px;">
+            <p style="color: #64748b; font-size: 14px; margin-bottom: 15px;">Session summary</p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div>
+                    <div style="font-size: 24px; font-weight: 600; color: #334155; margin-bottom: 5px;">15:23</div>
+                    <p style="color: #94a3b8; font-size: 12px;">Duration</p>
+                </div>
+                <div>
+                    <div style="font-size: 24px; font-weight: 600; color: #334155; margin-bottom: 5px;">⭐ <span id="finalRating">5</span></div>
+                    <p style="color: #94a3b8; font-size: 12px;">You were rated</p>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="showScreen('dashboard')">Back to Dashboard</button>
+    </div>
+</div>
+
+<script>
+var userName = '';
+var selectedCats = [];
+var selectedTimes = [];
+var rating = 0;
+
+function showScreen(screen) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screen).classList.add('active');
+}
+
+document.getElementById('nameInput').addEventListener('input', function(e) {
+    var btn = document.getElementById('nameBtn');
+    if (e.target.value.trim()) {
+        btn.disabled = false;
+    } else {
+        btn.disabled = true;
+    }
+});
+
+function saveName() {
+    userName = document.getElementById('nameInput').value.trim();
+    showScreen('categories');
+}
+
+function toggleCat(id) {
+    var idx = selectedCats.indexOf(id);
+    if (idx > -1) {
+        selectedCats.splice(idx, 1);
+    } else if (selectedCats.length < 5) {
+        selectedCats.push(id);
+    }
+    
+    document.querySelectorAll('.category').forEach(function(el, i) {
+        if (i < 4) {
+            if (selectedCats.indexOf(i + 1) > -1) {
+                el.classList.add('selected');
+            } else {
+                el.classList.remove('selected');
+            }
+        }
+    });
+    
+    var btn = document.getElementById('catBtn');
+    btn.disabled = selectedCats.length === 0;
+    
+    updateSelected();
+}
+
+function updateSelected() {
+    var list = document.getElementById('selectedList');
+    if (selectedCats.length > 0) {
+        var names = {1: '🎖️ Veterans', 2: '🛡️ PTSD', 3: '🌧️ Depression', 4: '💭 Anxiety'};
+        var html = '<div style="margin-bottom: 20px;"><h3 style="color: #475569; font-size: 14px; margin-bottom: 10px;">Your topics (' + selectedCats.length + '/5)</h3>';
+        selectedCats.forEach(function(id, idx) {
+            html += '<div class="card" style="padding: 12px; margin: 5px 0;"><span style="color: #6b7556; font-weight: 600;">#' + (idx + 1) + '</span> ' + names[id] + '</div>';
+        });
+        html += '</div>';
+        list.innerHTML = html;
+    } else {
+        list.innerHTML = '';
+    }
+}
+
+function toggleTime(id) {
+    var idx = selectedTimes.indexOf(id);
+    if (idx > -1) {
+        selectedTimes.splice(idx, 1);
+    } else {
+        selectedTimes.push(id);
+    }
+    
+    var cats = document.querySelectorAll('#availability .category');
+    cats.forEach(function(el, i) {
+        if (selectedTimes.indexOf(i + 1) > -1) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
+    });
+    
+    var btn = document.getElementById('timeBtn');
+    btn.disabled = selectedTimes.length === 0;
+}
+
+function setRating(r) {
+    rating = r;
+    for (var i = 1; i <= 5; i++) {
+        var star = document.getElementById('star' + i);
+        if (i <= r) {
+            star.style.color = '#fbbf24';
+        } else {
+            star.style.color = '#e2e8f0';
+        }
+    }
+    document.getElementById('feedbackBtn').disabled = false;
+}
+
+window.addEventListener('load', function() {
+    var screens = ['dashboard', 'complete'];
+    screens.forEach(function(s) {
+        var screen = document.getElementById(s);
+        if (screen) {
+            var nameEl = screen.querySelector('#dashName, #completeName');
+            if (nameEl) nameEl.textContent = userName || 'User';
+            var initial = screen.querySelector('#dashInitial');
+            if (initial) initial.textContent = (userName || 'U').charAt(0).toUpperCase();
+            var ratingEl = screen.querySelector('#finalRating');
+            if (ratingEl) ratingEl.textContent = rating || 5;
+            
+            var dashCats = screen.querySelector('#dashCategories');
+            if (dashCats && selectedCats.length > 0) {
+                var names = {1: '🎖️ Veterans', 2: '🛡️ PTSD', 3: '🌧️ Depression', 4: '💭 Anxiety'};
+                var html = '';
+                selectedCats.forEach(function(id, idx) {
+                    html += '<div class="card" style="padding: 12px; margin: 5px 0;"><span style="color: #94a3b8;">#' + (idx + 1) + '</span> ' + names[id] + '</div>';
+                });
+                dashCats.innerHTML = html;
+            }
+        }
+    });
+});
+</script>
+
+</body>
+</html>
