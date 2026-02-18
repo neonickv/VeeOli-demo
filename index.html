@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeeOli - Shared experiences for shared support</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        #root {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        
+        .animate-bounce {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+        
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        button, input, textarea {
+            transition: all 0.2s ease;
+        }
+        
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+        
+        .slate-50 { background-color: #f8fafc; }
+        .slate-100 { background-color: #f1f5f9; }
+        .slate-200 { background-color: #e2e8f0; }
+        .slate-300 { background-color: #cbd5e1; }
+        .slate-400 { background-color: #94a3b8; }
+        .slate-500 { background-color: #64748b; }
+        .slate-600 { background-color: #475569; }
+        .slate-700 { background-color: #334155; }
+        .slate-800 { background-color: #1e293b; }
+        
+        .text-slate-200 { color: #e2e8f0; }
+        .text-slate-300 { color: #cbd5e1; }
+        .text-slate-400 { color: #94a3b8; }
+        .text-slate-500 { color: #64748b; }
+        .text-slate-600 { color: #475569; }
+        .text-slate-700 { color: #334155; }
+        
+        .border-slate-100 { border-color: #f1f5f9; }
+        .border-slate-200 { border-color: #e2e8f0; }
+        .border-slate-300 { border-color: #cbd5e1; }
+        .border-slate-400 { border-color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Lucide React icons as inline SVGs
+        const Phone = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+        );
+
+        const MessageSquare = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        );
+
+        const Shield = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+        );
+
+        const UserCircle = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="10" r="3"></circle>
+                <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path>
+            </svg>
+        );
+
+        const ArrowLeft = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        );
+
+        const Check = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+
+        const ChevronUp = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        );
+
+        const ChevronDown = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        );
+
+        const Star = ({ className, filled }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+        );
+
+        const Calendar = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        );
+
+        const Clock = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        );
+
+        function VeeOliApp() {
+            const [currentScreen, setCurrentScreen] = useState('welcome');
+            const [userName, setUserName] = useState('');
+            const [selectedCategories, setSelectedCategories] = useState([]);
+            const [availability, setAvailability] = useState([]);
+            const [acceptedTerms, setAcceptedTerms] = useState(false);
+            const [connectionType, setConnectionType] = useState(null);
+            const [isMatching, setIsMatching] = useState(false);
+            const [matchedPeer, setMatchedPeer] = useState(null);
+            const [chatMessages, setChatMessages] = useState([]);
+            const [messageInput, setMessageInput] = useState('');
+            const [callDuration, setCallDuration] = useState(0);
+            const [feedbackRating, setFeedbackRating] = useState(0);
+            const [feedbackNotes, setFeedbackNotes] = useState('');
+
+            const userStats = {
+                listenerRating: 4.7,
+                totalSessions: 23,
+                hoursListened: 18
+            };
+
+            const categories = [
+                { id: 1, name: "Veterans", icon: "🎖️" },
+                { id: 2, name: "PTSD", icon: "🛡️" },
+                { id: 3, name: "Depression", icon: "🌧️" },
+                { id: 4, name: "Anxiety", icon: "💭" },
+                { id: 5, name: "Grief & Loss", icon: "🕊️" },
+                { id: 6, name: "Life Transitions", icon: "🌱" },
+                { id: 7, name: "Addiction Recovery", icon: "🔄" },
+                { id: 8, name: "Relationship Issues", icon: "💔" },
+                { id: 9, name: "Work Stress", icon: "💼" },
+                { id: 10, name: "Chronic Illness", icon: "🏥" },
+                { id: 11, name: "Parenting", icon: "👶" },
+                { id: 12, name: "Identity & Self", icon: "🔍" }
+            ];
+
+            const timeSlots = [
+                { id: 'weekday-morning', label: 'Weekday Mornings', time: '8am - 12pm' },
+                { id: 'weekday-afternoon', label: 'Weekday Afternoons', time: '12pm - 5pm' },
+                { id: 'weekday-evening', label: 'Weekday Evenings', time: '5pm - 10pm' },
+                { id: 'weekend-morning', label: 'Weekend Mornings', time: '8am - 12pm' },
+                { id: 'weekend-afternoon', label: 'Weekend Afternoons', time: '12pm - 5pm' },
+                { id: 'weekend-evening', label: 'Weekend Evenings', time: '5pm - 10pm' },
+            ];
+
+            const toggleCategory = (category) => {
+                if (selectedCategories.find(c => c.id === category.id)) {
+                    setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
+                } else {
+                    if (selectedCategories.length < 5) {
+                        setSelectedCategories([...selectedCategories, category]);
+                    }
+                }
+            };
+
+            const moveCategoryUp = (index) => {
+                if (index > 0) {
+                    const newCategories = [...selectedCategories];
+                    [newCategories[index - 1], newCategories[index]] = [newCategories[index], newCategories[index - 1]];
+                    setSelectedCategories(newCategories);
+                }
+            };
+
+            const moveCategoryDown = (index) => {
+                if (index < selectedCategories.length - 1) {
+                    const newCategories = [...selectedCategories];
+                    [newCategories[index], newCategories[index + 1]] = [newCategories[index + 1], newCategories[index]];
+                    setSelectedCategories(newCategories);
+                }
+            };
+
+            const toggleAvailability = (slotId) => {
+                if (availability.includes(slotId)) {
+                    setAvailability(availability.filter(id => id !== slotId));
+                } else {
+                    setAvailability([...availability, slotId]);
+                }
+            };
+
+            const startMatching = (type) => {
+                setConnectionType(type);
+                setIsMatching(true);
+                setCurrentScreen('matching');
+                
+                setTimeout(() => {
+                    setMatchedPeer({
+                        name: "Jordan K.",
+                        sharedCategories: selectedCategories.slice(0, 2),
+                        avatar: "JK",
+                        listenerRating: 4.8,
+                        totalSessions: 127
+                    });
+                    setIsMatching(false);
+                    if (type === 'text') {
+                        setCurrentScreen('text-chat');
+                        setChatMessages([
+                            { id: 1, sender: 'peer', text: "Hi. I'm here to listen.", time: "Just now" }
+                        ]);
+                    } else {
+                        setCurrentScreen('voice-call');
+                    }
+                }, 3000);
+            };
+
+            const endConnection = () => {
+                setCurrentScreen('feedback');
+            };
+
+            const submitFeedback = () => {
+                setFeedbackRating(0);
+                setFeedbackNotes('');
+                setMatchedPeer(null);
+                setChatMessages([]);
+                setCallDuration(0);
+                setCurrentScreen('dashboard');
+            };
+
+            const sendMessage = () => {
+                if (messageInput.trim()) {
+                    setChatMessages([...chatMessages, {
+                        id: chatMessages.length + 1,
+                        sender: 'you',
+                        text: messageInput,
+                        time: "Just now"
+                    }]);
+                    setMessageInput('');
+                    
+                    setTimeout(() => {
+                        setChatMessages(prev => [...prev, {
+                            id: prev.length + 1,
+                            sender: 'peer',
+                            text: "I hear you.",
+                            time: "Just now"
+                        }]);
+                    }, 2000);
+                }
+            };
+
+            const formatTime = (seconds) => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            };
+
+            // Screen Components
+            const WelcomeScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'linear-gradient(to bottom, #f1f5f9, #f8fafc)' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 2rem 5rem' }}>
+                        <div style={{ marginBottom: '3rem' }}>
+                            <div style={{ width: '7rem', height: '7rem', background: '#94a3b8', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px rgba(0,0,0,0.1)' }}>
+                                <span style={{ fontSize: '3rem' }}>🫒</span>
+                            </div>
+                        </div>
+                        <h1 style={{ fontSize: '2.25rem', fontWeight: '300', color: '#334155', marginBottom: '0.75rem', textAlign: 'center' }}>VeeOli</h1>
+                        <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '0.5rem', textAlign: 'center' }}>Shared experiences</p>
+                        <p style={{ fontSize: '1rem', color: '#64748b', marginBottom: '4rem', textAlign: 'center' }}>for shared support</p>
+                        
+                        <div style={{ width: '100%', maxWidth: '28rem', display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '3rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(255,255,255,0.6)', padding: '1.25rem', borderRadius: '0.5rem' }}>
+                                <Shield style={{ width: '1.25rem', height: '1.25rem', color: '#64748b', marginTop: '0.125rem', flexShrink: 0 }} />
+                                <div>
+                                    <h3 style={{ fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>Before crisis</h3>
+                                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>You don't need to be in crisis to talk</p>
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(255,255,255,0.6)', padding: '1.25rem', borderRadius: '0.5rem' }}>
+                                <UserCircle style={{ width: '1.25rem', height: '1.25rem', color: '#64748b', marginTop: '0.125rem', flexShrink: 0 }} />
+                                <div>
+                                    <h3 style={{ fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>Peer-based support</h3>
+                                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Someone who's been there listens differently</p>
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(255,255,255,0.6)', padding: '1.25rem', borderRadius: '0.5rem' }}>
+                                <Phone style={{ width: '1.25rem', height: '1.25rem', color: '#64748b', marginTop: '0.125rem', flexShrink: 0 }} />
+                                <div>
+                                    <h3 style={{ fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>When you're ready</h3>
+                                    <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Talk or text — without pressure</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '0 2rem 2rem' }}>
+                        <button
+                            onClick={() => setCurrentScreen('name-setup')}
+                            style={{ width: '100%', background: '#475569', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', fontSize: '1rem', border: 'none', cursor: 'pointer' }}
+                        >
+                            Get Started
+                        </button>
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center', marginTop: '1rem' }}>Not therapy. Peer-based support.</p>
+                    </div>
+                </div>
+            );
+
+            // Simplified screens for brevity - in production these would all be fully styled
+            const NameSetupScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'white' }}>
+                    <div style={{ flex: 1, padding: '4rem 2rem 0' }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.75rem' }}>Choose your name</h2>
+                        <p style={{ color: '#64748b', marginBottom: '2rem' }}>This is how others will know you. It can be anything you'd like.</p>
+                        
+                        <input
+                            type="text"
+                            placeholder="Your name or nickname"
+                            value={userName}
+                            onChange={(e) => setUserName(e.target.value)}
+                            style={{ width: '100%', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', fontSize: '1rem' }}
+                        />
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.75rem' }}>Your identity stays private. Only this name is shared.</p>
+                    </div>
+                    
+                    <div style={{ padding: '0 2rem 2rem' }}>
+                        <button
+                            onClick={() => setCurrentScreen('categories')}
+                            disabled={!userName.trim()}
+                            style={{ width: '100%', background: userName.trim() ? '#475569' : '#cbd5e1', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: userName.trim() ? 'pointer' : 'not-allowed' }}
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const CategorySelectionScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'white', overflow: 'hidden' }}>
+                    <div style={{ padding: '3rem 1.5rem 1rem', flexShrink: 0 }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem' }}>Select your topics</h2>
+                        <p style={{ color: '#64748b', marginBottom: '0.25rem' }}>Choose up to 5 areas you understand</p>
+                        <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>These help us match you thoughtfully</p>
+                    </div>
+                    
+                    {selectedCategories.length > 0 && (
+                        <div style={{ padding: '0 1.5rem 1rem', flexShrink: 0 }}>
+                            <h3 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '0.75rem' }}>
+                                Your topics ({selectedCategories.length}/5)
+                            </h3>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                {selectedCategories.map((category, index) => (
+                                    <div key={category.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                            <button 
+                                                onClick={() => moveCategoryUp(index)}
+                                                disabled={index === 0}
+                                                style={{ border: 'none', background: 'transparent', cursor: index === 0 ? 'not-allowed' : 'pointer', padding: 0, opacity: index === 0 ? 0.2 : 1 }}
+                                            >
+                                                <ChevronUp style={{ width: '1rem', height: '1rem', color: '#cbd5e1' }} />
+                                            </button>
+                                            <button 
+                                                onClick={() => moveCategoryDown(index)}
+                                                disabled={index === selectedCategories.length - 1}
+                                                style={{ border: 'none', background: 'transparent', cursor: index === selectedCategories.length - 1 ? 'not-allowed' : 'pointer', padding: 0, opacity: index === selectedCategories.length - 1 ? 0.2 : 1 }}
+                                            >
+                                                <ChevronDown style={{ width: '1rem', height: '1rem', color: '#cbd5e1' }} />
+                                            </button>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#94a3b8', width: '1.5rem' }}>#{index + 1}</span>
+                                            <span style={{ fontSize: '1.125rem' }}>{category.icon}</span>
+                                            <span style={{ fontWeight: '500', color: '#334155' }}>{category.name}</span>
+                                        </div>
+                                        <button 
+                                            onClick={() => toggleCategory(category)}
+                                            style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                                        >
+                                            <Check style={{ width: '1.25rem', height: '1.25rem', color: '#94a3b8' }} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '0 1.5rem 1rem', WebkitOverflowScrolling: 'touch' }}>
+                        <h3 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '0.75rem' }}>Available topics</h3>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', paddingBottom: '1rem' }}>
+                            {categories.map((category) => {
+                                const isSelected = selectedCategories.find(c => c.id === category.id);
+                                const isDisabled = !isSelected && selectedCategories.length >= 5;
+                                return (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => !isDisabled && toggleCategory(category)}
+                                        disabled={isDisabled}
+                                        style={{ 
+                                            padding: '1rem', 
+                                            borderRadius: '0.5rem', 
+                                            border: isSelected ? '1px solid #cbd5e1' : '1px solid #e2e8f0', 
+                                            background: isSelected ? '#f8fafc' : 'white',
+                                            opacity: isSelected ? 0.4 : isDisabled ? 0.3 : 1,
+                                            cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                            textAlign: 'left'
+                                        }}
+                                    >
+                                        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{category.icon}</div>
+                                        <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#334155' }}>{category.name}</div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '1rem 1.5rem 2rem', background: 'white', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
+                        <button
+                            onClick={() => setCurrentScreen('availability')}
+                            disabled={selectedCategories.length === 0}
+                            style={{ width: '100%', background: selectedCategories.length > 0 ? '#475569' : '#cbd5e1', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: selectedCategories.length > 0 ? 'pointer' : 'not-allowed' }}
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const AvailabilityScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'white', overflow: 'hidden' }}>
+                    <div style={{ padding: '3rem 1.5rem 1rem', flexShrink: 0 }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem' }}>When can you listen?</h2>
+                        <p style={{ color: '#64748b', marginBottom: '0.25rem' }}>Select times you're typically available</p>
+                        <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>You can change this anytime</p>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '0 1.5rem 1rem', WebkitOverflowScrolling: 'touch' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                            {timeSlots.map((slot) => {
+                                const isSelected = availability.includes(slot.id);
+                                return (
+                                    <button
+                                        key={slot.id}
+                                        onClick={() => toggleAvailability(slot.id)}
+                                        style={{ 
+                                            width: '100%', 
+                                            padding: '1rem', 
+                                            borderRadius: '0.5rem', 
+                                            border: isSelected ? '1px solid #94a3b8' : '1px solid #e2e8f0',
+                                            background: isSelected ? '#f8fafc' : 'white',
+                                            cursor: 'pointer',
+                                            textAlign: 'left'
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                                <Calendar style={{ width: '1.25rem', height: '1.25rem', color: '#94a3b8' }} />
+                                                <div>
+                                                    <div style={{ fontWeight: '500', color: '#334155' }}>{slot.label}</div>
+                                                    <div style={{ fontSize: '0.875rem', color: '#94a3b8' }}>{slot.time}</div>
+                                                </div>
+                                            </div>
+                                            {isSelected && <Check style={{ width: '1.25rem', height: '1.25rem', color: '#475569' }} />}
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '1.5rem', padding: '0 0.25rem' }}>
+                            Selecting times helps us match you when you're ready to listen, but you're never obligated.
+                        </p>
+                    </div>
+                    
+                    <div style={{ padding: '1rem 1.5rem 2rem', background: 'white', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
+                        <button
+                            onClick={() => setCurrentScreen('terms')}
+                            disabled={availability.length === 0}
+                            style={{ width: '100%', background: availability.length > 0 ? '#475569' : '#cbd5e1', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: availability.length > 0 ? 'pointer' : 'not-allowed' }}
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const TermsScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'white', overflow: 'hidden' }}>
+                    <div style={{ padding: '3rem 1.5rem 1rem', flexShrink: 0 }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem' }}>Terms of service</h2>
+                        <p style={{ color: '#64748b' }}>Please read and agree to continue</p>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '0 1.5rem 1rem', WebkitOverflowScrolling: 'touch' }}>
+                        <div style={{ background: '#f8fafc', borderRadius: '0.5rem', padding: '1.5rem', fontSize: '0.875rem', color: '#475569', lineHeight: '1.7' }}>
+                            <p style={{ fontWeight: '500', color: '#334155', marginBottom: '1rem' }}>
+                                VeeOli provides peer-based support, not therapy or medical treatment.
+                            </p>
+                            
+                            <p style={{ marginBottom: '1rem' }}>By using VeeOli, you understand that:</p>
+                            
+                            <ul style={{ marginLeft: '1rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <li>• This is not a crisis service. If you're in crisis, please contact 988 or emergency services.</li>
+                                <li>• Conversations are between peers with shared lived experiences.</li>
+                                <li>• Listeners are not licensed therapists or medical professionals.</li>
+                                <li>• All interactions should remain respectful and supportive.</li>
+                                <li>• You can end any conversation at any time.</li>
+                                <li>• Your privacy is protected — conversations are not recorded.</li>
+                            </ul>
+                            
+                            <p style={{ fontWeight: '500', color: '#334155', marginBottom: '0.5rem', paddingTop: '0.5rem' }}>
+                                Community Guidelines:
+                            </p>
+                            
+                            <ul style={{ marginLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <li>• Listen without judgment</li>
+                                <li>• Respect boundaries</li>
+                                <li>• No medical advice or diagnosis</li>
+                                <li>• Report safety concerns immediately</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '1rem 1.5rem 2rem', background: 'white', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
+                        <button
+                            onClick={() => {
+                                setAcceptedTerms(true);
+                                setCurrentScreen('dashboard');
+                            }}
+                            style={{ width: '100%', background: '#475569', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: 'pointer' }}
+                        >
+                            I Understand and Agree
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const DashboardScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#f8fafc', overflow: 'hidden' }}>
+                    <div style={{ background: 'white', padding: '3rem 1.5rem 1.5rem', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+                            <div>
+                                <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155' }}>Welcome, {userName}</h2>
+                                <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>Peer support platform</p>
+                            </div>
+                            <div style={{ width: '3rem', height: '3rem', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: '1.125rem', fontWeight: '500', color: '#475569' }}>{userName.charAt(0)}</span>
+                            </div>
+                        </div>
+                        
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', marginBottom: '0.25rem' }}>
+                                    <Star style={{ width: '1rem', height: '1rem', color: '#f59e0b' }} filled={true} />
+                                    <span style={{ fontSize: '1.125rem', fontWeight: '500', color: '#334155' }}>{userStats.listenerRating}</span>
+                                </div>
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Rating</p>
+                            </div>
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.125rem', fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>{userStats.totalSessions}</div>
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Sessions</p>
+                            </div>
+                            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '0.5rem', textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.125rem', fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>{userStats.hoursListened}h</div>
+                                <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Listened</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem', WebkitOverflowScrolling: 'touch' }}>
+                        <h3 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '1rem' }}>Your topics</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+                            {selectedCategories.map((category, index) => (
+                                <div key={category.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                                    <span style={{ fontSize: '0.75rem', fontWeight: '500', color: '#94a3b8', width: '1.5rem' }}>#{index + 1}</span>
+                                    <span style={{ fontSize: '1.125rem' }}>{category.icon}</span>
+                                    <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#334155' }}>{category.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <h3 style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '1rem' }}>Availability</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+                            {availability.map(slotId => {
+                                const slot = timeSlots.find(s => s.id === slotId);
+                                return (
+                                    <div key={slotId} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                                        <Clock style={{ width: '1rem', height: '1rem', color: '#94a3b8' }} />
+                                        <div>
+                                            <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#334155' }}>{slot.label}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{slot.time}</div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '1rem 1.5rem 2rem', background: 'white', borderTop: '1px solid #f1f5f9', flexShrink: 0 }}>
+                        <button
+                            onClick={() => setCurrentScreen('ready')}
+                            style={{ width: '100%', background: '#475569', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: 'pointer', marginBottom: '0.75rem' }}
+                        >
+                            I'm Ready to Talk
+                        </button>
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>When you need to talk, someone's here</p>
+                    </div>
+                </div>
+            );
+
+            const ReadyToConnectScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'white' }}>
+                    <div style={{ padding: '3rem 1.5rem 1.5rem' }}>
+                        <button onClick={() => setCurrentScreen('dashboard')} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0, marginBottom: '1rem' }}>
+                            <ArrowLeft style={{ width: '1.5rem', height: '1.5rem', color: '#94a3b8' }} />
+                        </button>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem' }}>How would you like to connect?</h2>
+                        <p style={{ color: '#64748b' }}>We'll match you with someone who understands</p>
+                    </div>
+                    
+                    <div style={{ flex: 1, padding: '0 1.5rem 1.5rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <button
+                                onClick={() => startMatching('call')}
+                                style={{ width: '100%', background: 'white', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '0.5rem', cursor: 'pointer', textAlign: 'left' }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ width: '3rem', height: '3rem', background: '#f1f5f9', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <Phone style={{ width: '1.5rem', height: '1.5rem', color: '#475569' }} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 style={{ fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>Voice call</h4>
+                                        <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>Talk in real-time</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button
+                                onClick={() => startMatching('text')}
+                                style={{ width: '100%', background: 'white', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '0.5rem', cursor: 'pointer', textAlign: 'left' }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <div style={{ width: '3rem', height: '3rem', background: '#f1f5f9', borderRadius: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <MessageSquare style={{ width: '1.5rem', height: '1.5rem', color: '#475569' }} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 style={{ fontWeight: '500', color: '#334155', marginBottom: '0.25rem' }}>Text chat</h4>
+                                        <p style={{ fontSize: '0.875rem', color: '#94a3b8' }}>Message at your pace</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '0 1.5rem 2rem' }}>
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>Matched by shared experience, not by urgency</p>
+                    </div>
+                </div>
+            );
+
+            const MatchingScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#f8fafc', alignItems: 'center', justifyContent: 'center', padding: '0 2rem' }}>
+                    <div className="animate-pulse" style={{ width: '5rem', height: '5rem', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                        <UserCircle style={{ width: '2.5rem', height: '2.5rem', color: '#64748b' }} />
+                    </div>
+                    
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem', textAlign: 'center' }}>Finding a listener</h2>
+                    <p style={{ color: '#94a3b8', textAlign: 'center', marginBottom: '2rem' }}>
+                        Matching thoughtfully...
+                    </p>
+                    
+                    <div style={{ width: '100%', maxWidth: '28rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem' }}>
+                        {selectedCategories.slice(0, 3).map((category) => (
+                            <div 
+                                key={category.id} 
+                                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'white', padding: '0.75rem', borderRadius: '0.5rem' }}
+                            >
+                                <span style={{ fontSize: '1.125rem' }}>{category.icon}</span>
+                                <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569' }}>{category.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className="animate-bounce" style={{ width: '0.5rem', height: '0.5rem', background: '#94a3b8', borderRadius: '50%', animationDelay: '0s' }}></div>
+                        <div className="animate-bounce" style={{ width: '0.5rem', height: '0.5rem', background: '#94a3b8', borderRadius: '50%', animationDelay: '0.1s' }}></div>
+                        <div className="animate-bounce" style={{ width: '0.5rem', height: '0.5rem', background: '#94a3b8', borderRadius: '50%', animationDelay: '0.2s' }}></div>
+                    </div>
+                </div>
+            );
+
+            const VoiceCallScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#334155', color: 'white' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 2rem' }}>
+                        <div style={{ width: '7rem', height: '7rem', background: '#475569', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                            <UserCircle style={{ width: '4rem', height: '4rem', color: '#cbd5e1' }} />
+                        </div>
+                        
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: '300', marginBottom: '0.5rem' }}>{matchedPeer?.name}</h2>
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.5rem' }}>
+                            <Star style={{ width: '1rem', height: '1rem', color: '#fbbf24' }} filled={true} />
+                            <span style={{ fontSize: '0.875rem', color: '#cbd5e1' }}>{matchedPeer?.listenerRating}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: '0.5rem' }}>• {matchedPeer?.totalSessions} sessions</span>
+                        </div>
+                        
+                        <div style={{ background: 'rgba(71, 85, 105, 0.5)', borderRadius: '0.5rem', padding: '1rem', marginBottom: '2rem', marginTop: '1rem' }}>
+                            <p style={{ fontSize: '0.75rem', color: '#cbd5e1', textAlign: 'center', marginBottom: '0.5rem' }}>Shared topics:</p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                                {matchedPeer?.sharedCategories.map(cat => (
+                                    <div key={cat.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: 'rgba(100, 116, 139, 0.5)', padding: '0.25rem 0.75rem', borderRadius: '9999px' }}>
+                                        <span style={{ fontSize: '0.875rem' }}>{cat.icon}</span>
+                                        <span style={{ fontSize: '0.75rem', color: '#e2e8f0' }}>{cat.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                            <p style={{ fontSize: '3rem', fontWeight: '300', color: 'white' }}>{formatTime(callDuration)}</p>
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '0 2rem 3rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                            <button 
+                                onClick={endConnection}
+                                style={{ width: '4rem', height: '4rem', background: '#ef4444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
+                            >
+                                <Phone style={{ width: '1.5rem', height: '1.5rem', color: 'white' }} />
+                            </button>
+                        </div>
+                        
+                        <p style={{ fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>
+                            You can end this call anytime
+                        </p>
+                    </div>
+                </div>
+            );
+
+            const TextChatScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'white' }}>
+                    <div style={{ background: 'white', padding: '3rem 1.5rem 1rem', borderBottom: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <div style={{ width: '2.5rem', height: '2.5rem', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569' }}>{matchedPeer?.avatar}</span>
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontWeight: '500', color: '#334155' }}>{matchedPeer?.name}</h3>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+                                    <Star style={{ width: '0.75rem', height: '0.75rem', color: '#fbbf24' }} filled={true} />
+                                    <span>{matchedPeer?.listenerRating}</span>
+                                </div>
+                            </div>
+                            <button onClick={endConnection} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}>
+                                <ArrowLeft style={{ width: '1.25rem', height: '1.25rem', color: '#94a3b8' }} />
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflow: 'auto', padding: '1.5rem', background: '#f8fafc' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            {chatMessages.map((msg) => (
+                                <div key={msg.id} style={{ display: 'flex', justifyContent: msg.sender === 'you' ? 'flex-end' : 'flex-start' }}>
+                                    <div style={{ 
+                                        maxWidth: '75%', 
+                                        background: msg.sender === 'you' ? '#475569' : 'white',
+                                        color: msg.sender === 'you' ? 'white' : '#334155',
+                                        border: msg.sender === 'you' ? 'none' : '1px solid #e2e8f0',
+                                        borderRadius: '1rem', 
+                                        padding: '0.75rem 1rem'
+                                    }}>
+                                        <p style={{ fontSize: '0.875rem', marginBottom: '0.25rem' }}>{msg.text}</p>
+                                        <p style={{ fontSize: '0.75rem', color: msg.sender === 'you' ? '#cbd5e1' : '#94a3b8' }}>
+                                            {msg.time}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div style={{ background: 'white', borderTop: '1px solid #f1f5f9', padding: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <input
+                                type="text"
+                                placeholder="Type a message..."
+                                value={messageInput}
+                                onChange={(e) => setMessageInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                                style={{ flex: 1, padding: '0.75rem 1rem', border: '1px solid #e2e8f0', borderRadius: '9999px', outline: 'none', color: '#334155' }}
+                            />
+                            <button 
+                                onClick={sendMessage}
+                                style={{ width: '3rem', height: '3rem', background: '#475569', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', border: 'none', cursor: 'pointer' }}
+                            >
+                                <MessageSquare style={{ width: '1.25rem', height: '1.25rem' }} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            const FeedbackScreen = () => (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'white' }}>
+                    <div style={{ padding: '3rem 1.5rem 1.5rem' }}>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: '300', color: '#334155', marginBottom: '0.5rem' }}>How did it go?</h2>
+                        <p style={{ color: '#64748b' }}>Your feedback helps us improve</p>
+                    </div>
+                    
+                    <div style={{ flex: 1, padding: '0 1.5rem 1.5rem' }}>
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '1rem' }}>
+                                Rate {matchedPeer?.name} as a listener
+                            </p>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem' }}>
+                                {[1, 2, 3, 4, 5].map((rating) => (
+                                    <button
+                                        key={rating}
+                                        onClick={() => setFeedbackRating(rating)}
+                                        style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        <Star 
+                                            style={{ 
+                                                width: '2.5rem', 
+                                                height: '2.5rem',
+                                                color: rating <= feedbackRating ? '#fbbf24' : '#e2e8f0'
+                                            }}
+                                            filled={rating <= feedbackRating}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#475569', marginBottom: '0.75rem' }}>
+                                Any additional feedback? (optional)
+                            </p>
+                            <textarea
+                                value={feedbackNotes}
+                                onChange={(e) => setFeedbackNotes(e.target.value)}
+                                placeholder="What went well? What could be better?"
+                                rows="4"
+                                style={{ width: '100%', padding: '0.75rem 1rem', border: '1px solid #e2e8f0', borderRadius: '0.5rem', outline: 'none', color: '#334155', resize: 'none', fontFamily: 'inherit' }}
+                            />
+                        </div>
+                    </div>
+                    
+                    <div style={{ padding: '1rem 1.5rem 2rem', background: 'white', borderTop: '1px solid #f1f5f9' }}>
+                        <button
+                            onClick={submitFeedback}
+                            disabled={feedbackRating === 0}
+                            style={{ width: '100%', background: feedbackRating > 0 ? '#475569' : '#cbd5e1', color: 'white', padding: '1rem', borderRadius: '0.5rem', fontWeight: '500', border: 'none', cursor: feedbackRating > 0 ? 'pointer' : 'not-allowed' }}
+                        >
+                            Submit Feedback
+                        </button>
+                    </div>
+                </div>
+            );
+
+            // Render current screen
+            return (
+                <div>
+                    {currentScreen === 'welcome' && <WelcomeScreen />}
+                    {currentScreen === 'name-setup' && <NameSetupScreen />}
+                    {currentScreen === 'categories' && <CategorySelectionScreen />}
+                    {currentScreen === 'availability' && <AvailabilityScreen />}
+                    {currentScreen === 'terms' && <TermsScreen />}
+                    {currentScreen === 'dashboard' && <DashboardScreen />}
+                    {currentScreen === 'ready' && <ReadyToConnectScreen />}
+                    {currentScreen === 'matching' && <MatchingScreen />}
+                    {currentScreen === 'voice-call' && <VoiceCallScreen />}
+                    {currentScreen === 'text-chat' && <TextChatScreen />}
+                    {currentScreen === 'feedback' && <FeedbackScreen />}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<VeeOliApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
